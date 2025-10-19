@@ -1,0 +1,35 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# --- Entornos virtuales ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- Archivos temporales ---
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+
+# --- Configuración de IDEs/editores ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Archivos de pruebas ---
+*.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+
+# --- Datos de ejecución del programa ---
+notas/

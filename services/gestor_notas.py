@@ -39,9 +39,15 @@ class GestorNotas:
         resultados = []
         for archivo in os.listdir(self.carpeta):
             ruta = os.path.join(self.carpeta, archivo)
-            with open(ruta, "r", encoding="utf-8") as f:
-                if palabra.lower() in f.read().lower():
-                    resultados.append(archivo[:-4])
+            if not archivo.endswith(".txt") or archivo.endswith("_bak.txt"):
+                continue
+            try:
+                with open(ruta, "r", encoding="utf-8") as f:
+                    if palabra.lower() in f.read().lower():
+                        resultados.append(archivo[:-4])
+            except OSError:
+                # Se ignoran errores de E/S individuales para continuar con la búsqueda global.
+                continue
         return resultados
 
     def editar(self, nombre, nuevo_contenido):

@@ -23,10 +23,10 @@ while True:
     if opcion == "1":
         nombre = input("Nombre de la nota: ").strip()
         contenido = input("Contenido: ").strip()
-        if len(nombre) and len(contenido) > 5:
+        if len(nombre) > 0 and len(contenido) > 5:
             nota = Nota(nombre, contenido)
-            gestor.guardar(nota)
-            print("Nota guardada correctamente.")
+            exito, mensaje = gestor.guardar(nota)
+            print(mensaje)
         else:
             print("El nombre o el contenido no son válidos.")
 
@@ -35,7 +35,11 @@ while True:
         print(gestor.leer(nombre))
 
     elif opcion == "3":
-        print("Notas disponibles:", gestor.listar())
+        exito, resultado = gestor.listar()
+        if exito:
+            print("Notas disponibles:", resultado if resultado else "No hay notas guardadas.")
+        else:
+            print(resultado)
 
     elif opcion == "4":
         palabra = input("Palabra a buscar: ").strip()

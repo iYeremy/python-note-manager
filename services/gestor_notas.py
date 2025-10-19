@@ -15,8 +15,13 @@ class GestorNotas:
     def guardar(self, nota: Nota):
         """Escribe una nota nueva o reemplaza la existente con el mismo nombre."""
         ruta = os.path.join(self.carpeta, f"{nota.nombre}.txt")
-        with open(ruta, "w", encoding="utf-8") as archivo:
-            archivo.write(str(nota))
+        try:
+            with open(ruta, "w", encoding="utf-8") as archivo:
+                archivo.write(str(nota))
+        except OSError:
+            # Contener errores de escritura mantiene estable a la capa de interfaz.
+            return False, "No fue posible guardar la nota. Verifique permisos y reintente."
+        return True, "Nota guardada correctamente."
 
     def leer(self, nombre):
         """Obtiene el contenido de una nota por nombre y maneja fallos de lectura."""
@@ -32,7 +37,15 @@ class GestorNotas:
 
     def listar(self):
         """Devuelve los nombres de todas las notas disponibles en el directorio."""
-        return [a[:-4] for a in os.listdir(self.carpeta) if a.endswith(".txt")]
+        try:
+            notas = [
+                a[:-4]
+                for a in os.listdir(self.carpeta)
+                if a.endswith(".txt") and not a.endswith("_bak.txt")
+            ]
+            return True, notas
+        except OSError:
+            return False, "No fue posible listar las notas. Intente nuevamente."
 
     def buscar(self, palabra):
         """Busca una palabra en todas las notas y lista las coincidencias por nombre."""

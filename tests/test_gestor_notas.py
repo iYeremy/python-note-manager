@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from models.nota import Nota
 from services.gestor_notas import GestorNotas
@@ -101,6 +102,44 @@ class GestorNotasTestCase(unittest.TestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["nombre"], "json")
         self.assertIn("contenido", data[0])
+
+    def test_exportar_json_preserva_formato_tras_editar(self):
+        self.gestor.guardar(Nota("nota", "contenido inicial"))
+        self.gestor.editar("nota", "contenido editado")
+
+        self.gestor.exportar_json()
+        ruta_json = os.path.join(self.temp_dir.name, "exports", "notas.json")
+
+        with open(ruta_json, "r", encoding="utf-8") as archivo:
+            data = json.load(archivo)
+
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["nombre"], "nota")
+        self.assertEqual(data[0]["contenido"], "contenido editado")
+        self.assertTrue(data[0]["fecha"])
+
+    def test_editar_restaura_contenido_si_falla_escritura(self):
+        self.gestor.guardar(Nota("fallar", "texto original"))
+        ruta = os.path.join(self.temp_dir.name, "fallar.txt")
+        respaldo = os.path.join(self.temp_dir.name, "fallar_bak.txt")
+        real_open = open
+
+        def fake_open(path, mode="r", *args, **kwargs):
+            if path == ruta and "w" in mode:
+                raise OSError("fallo simulado")
+            return real_open(path, mode, *args, **kwargs)
+
+        with patch("builtins.open", side_effect=fake_open):
+            exito, mensaje = self.gestor.editar("fallar", "contenido nuevo")
+
+        self.assertFalse(exito)
+        self.assertIn("No fue posible editar la nota", mensaje)
+
+        with open(ruta, "r", encoding="utf-8") as archivo:
+            contenido = archivo.read()
+
+        self.assertIn("texto original", contenido)
+        self.assertTrue(os.path.exists(respaldo))
 
 
 if __name__ == "__main__":

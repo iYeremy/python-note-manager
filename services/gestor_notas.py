@@ -1,6 +1,7 @@
 import os
 import shutil
 import json
+from datetime import datetime
 from models.nota import Nota
 
 class GestorNotas:
@@ -71,18 +72,37 @@ class GestorNotas:
 
         respaldo = os.path.join(self.carpeta, f"{nombre}_bak.txt")
         try:
+            with open(ruta, "r", encoding="utf-8") as archivo_original:
+                contenido_original = archivo_original.read()
+        except OSError:
+            return False, "No fue posible editar la nota. Intente nuevamente más tarde."
+
+        lineas = contenido_original.splitlines()
+        encabezado = lineas[0] if lineas else f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        if not encabezado.startswith("Fecha: "):
+            encabezado = f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        cuerpo = nuevo_contenido.strip()
+
+        try:
             shutil.copy(ruta, respaldo)
             with open(ruta, "w", encoding="utf-8") as archivo:
-                archivo.write(nuevo_contenido)
+                archivo.write(f"{encabezado}\n\n{cuerpo}" if cuerpo else f"{encabezado}\n\n")
             return True, "Nota editada y respaldo creado."
         except OSError:
             # El servicio decide la recuperación porque conoce el contexto de persistencia.
+            restaurado = False
             if os.path.exists(respaldo):
                 try:
-                    os.remove(respaldo)
+                    shutil.copy(respaldo, ruta)
+                    restaurado = True
                 except OSError:
                     pass
-            return False, "No fue posible editar la nota. Intente nuevamente más tarde."
+            if not restaurado:
+                return (
+                    False,
+                    "No fue posible editar la nota y el contenido anterior quedó resguardado en el respaldo.",
+                )
+            return False, "No fue posible editar la nota. El contenido original fue restaurado."
 
     def eliminar(self, nombre):
         """Elimina una nota por nombre y responde con mensajes seguros."""

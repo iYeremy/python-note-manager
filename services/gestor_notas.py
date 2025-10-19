@@ -53,3 +53,9 @@ class GestorNotas:
             os.remove(ruta)
             return True
         return False
+    
+    def contar(self):
+        return len([
+            a for a in os.listdir(self.carpeta)
+            if a.endswith(".txt") and not a.endswith("_bak.txt")
+        ])

@@ -11,7 +11,8 @@ def mostrar_menu():
     print("4. Buscar palabra")
     print("5. Editar nota")
     print("6. Eliminar nota")
-    print("7. Salir")
+    print("7. Contar notas")
+    print("8. Salir")
 
 while True:
     mostrar_menu()
@@ -58,6 +59,10 @@ while True:
             print("No se encontró la nota.")
 
     elif opcion == "7":
+        total = gestor.contar()
+        print(f"Número total de notas: {total}")
+
+    elif opcion == "8":
         print("Programa finalizado.")
         break
 

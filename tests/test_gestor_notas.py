@@ -6,7 +6,7 @@ import unittest
 from models.nota import Nota
 from services.gestor_notas import GestorNotas
 
-
+# solo testas el servicio de gestor de notas
 class GestorNotasTestCase(unittest.TestCase):
     """Pruebas unitarias para el servicio de gestión de notas."""
 

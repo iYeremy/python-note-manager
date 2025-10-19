@@ -1,5 +1,6 @@
 import os
 import shutil
+import json
 from models.nota import Nota
 
 class GestorNotas:
@@ -59,3 +60,32 @@ class GestorNotas:
             a for a in os.listdir(self.carpeta)
             if a.endswith(".txt") and not a.endswith("_bak.txt")
         ])
+    
+    def exportar_json(self, archivo_salida="notas.json"):
+        """
+        Exporta todas las notas almacenadas a un archivo JSON.
+        Cada nota se representa como un objeto con los campos:
+        nombre, fecha y contenido.
+        """
+        notas = []
+        for archivo in os.listdir(self.carpeta):
+            if archivo.endswith(".txt") and not archivo.endswith("_bak.txt"):
+                ruta = os.path.join(self.carpeta, archivo)
+                with open(ruta, "r", encoding="utf-8") as f:
+                    contenido = f.read()
+                nombre = archivo[:-4]
+
+                # extraer la fecha de la primera línea del archivo
+                lineas = contenido.splitlines()
+                fecha = lineas[0].replace("Fecha: ", "").strip() if lineas else ""
+                cuerpo = "\n".join(lineas[2:]) if len(lineas) > 2 else ""
+                notas.append({
+                    "nombre": nombre,
+                    "fecha": fecha,
+                    "contenido": cuerpo
+                })
+
+        with open(archivo_salida, "w", encoding="utf-8") as json_file:
+            json.dump(notas, json_file, indent=4, ensure_ascii=False)
+
+        return True

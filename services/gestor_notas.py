@@ -54,7 +54,7 @@ class GestorNotas:
             return True
         return False
     
-    def contar(self):
+    def contar(self): # metodo en gestor_notas ya que es el componente que se encarga de la persistencia y gestión de archivos 
         return len([
             a for a in os.listdir(self.carpeta)
             if a.endswith(".txt") and not a.endswith("_bak.txt")

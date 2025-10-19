@@ -47,17 +47,14 @@ while True:
     elif opcion == "5":
         nombre = input("Nombre de la nota a editar: ").strip()
         nuevo = input("Nuevo contenido: ").strip()
-        if gestor.editar(nombre, nuevo):
-            print("Nota editada y respaldo creado.")
-        else:
-            print("No se encontró la nota.")
+        exito, mensaje = gestor.editar(nombre, nuevo)
+        # Las operaciones del servicio definen el mensaje para centralizar el tratamiento de errores de E/S.
+        print(mensaje)
 
     elif opcion == "6":
         nombre = input("Nombre de la nota a eliminar: ").strip()
-        if gestor.eliminar(nombre):
-            print("Nota eliminada correctamente.")
-        else:
-            print("No se encontró la nota.")
+        exito, mensaje = gestor.eliminar(nombre)
+        print(mensaje)
 
     elif opcion == "7":
         total = gestor.contar()

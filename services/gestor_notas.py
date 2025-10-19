@@ -4,22 +4,22 @@ import json
 from models.nota import Nota
 
 class GestorNotas:
-    """
-    Administra las operaciones de creación, lectura, edición,
-    búsqueda y eliminación de notas.
-    """
+    """Gestiona la creación, consulta y administración de notas en disco."""
 
     def __init__(self, carpeta="notas"):
+        """Inicializa el directorio de trabajo para almacenar las notas."""
         self.carpeta = carpeta
         if not os.path.exists(carpeta):
             os.makedirs(carpeta)
 
     def guardar(self, nota: Nota):
+        """Escribe una nota nueva o reemplaza la existente con el mismo nombre."""
         ruta = os.path.join(self.carpeta, f"{nota.nombre}.txt")
         with open(ruta, "w", encoding="utf-8") as archivo:
             archivo.write(str(nota))
 
     def leer(self, nombre):
+        """Obtiene el contenido de una nota por nombre y maneja fallos de lectura."""
         ruta = os.path.join(self.carpeta, f"{nombre}.txt")
         try:
             with open(ruta, "r", encoding="utf-8") as archivo:
@@ -31,9 +31,11 @@ class GestorNotas:
             return "No fue posible leer la nota. Intente nuevamente."
 
     def listar(self):
+        """Devuelve los nombres de todas las notas disponibles en el directorio."""
         return [a[:-4] for a in os.listdir(self.carpeta) if a.endswith(".txt")]
 
     def buscar(self, palabra):
+        """Busca una palabra en todas las notas y lista las coincidencias por nombre."""
         resultados = []
         for archivo in os.listdir(self.carpeta):
             ruta = os.path.join(self.carpeta, archivo)
@@ -43,6 +45,7 @@ class GestorNotas:
         return resultados
 
     def editar(self, nombre, nuevo_contenido):
+        """Reemplaza el contenido de una nota y conserva una copia de respaldo."""
         ruta = os.path.join(self.carpeta, f"{nombre}.txt")
         if not os.path.exists(ruta):
             return False, "No se encontró la nota."
@@ -63,6 +66,7 @@ class GestorNotas:
             return False, "No fue posible editar la nota. Intente nuevamente más tarde."
 
     def eliminar(self, nombre):
+        """Elimina una nota por nombre y responde con mensajes seguros."""
         ruta = os.path.join(self.carpeta, f"{nombre}.txt")
         if not os.path.exists(ruta):
             return False, "No se encontró la nota."
@@ -74,17 +78,15 @@ class GestorNotas:
             # Propagamos un mensaje genérico para no exponer detalles sensibles al usuario final.
             return False, "No fue posible eliminar la nota. Verifique los permisos e inténtelo más tarde."
     
-    def contar(self): # metodo en gestor_notas ya que es el componente que se encarga de la persistencia y gestión de archivos 
+    def contar(self):
+        """Cuenta notas válidas, excluyendo los respaldos de edición."""
         return len([
             a for a in os.listdir(self.carpeta)
             if a.endswith(".txt") and not a.endswith("_bak.txt")
         ])
     
     def exportar_json(self, carpeta_export="exports", archivo_salida="notas.json"):
-        """
-        Exporta todas las notas almacenadas a un archivo JSON dentro de una subcarpeta.
-        Cada nota se representa con: nombre, fecha, contenido.
-        """
+        """Genera un archivo JSON con todas las notas y sus metadatos básicos."""
         carpeta_destino = os.path.join(self.carpeta, carpeta_export)
         if not os.path.exists(carpeta_destino):
             os.makedirs(carpeta_destino)

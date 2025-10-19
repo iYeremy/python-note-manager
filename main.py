@@ -4,6 +4,7 @@ from services.gestor_notas import GestorNotas
 gestor = GestorNotas()
 
 def mostrar_menu():
+    """Muestra las opciones disponibles de la aplicación en consola."""
     print("\n--- Gestor de Notas ---")
     print("1. Crear nota")
     print("2. Leer nota")

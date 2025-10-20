@@ -1,58 +1,74 @@
-# Gestor de Notas
+# Gestor de Notas en Python
 
-Pequeña aplicación de línea de comandos pensada para razonar sobre cómo organizar
-una solución en capas bien definidas: el modelo de dominio (`Nota`), la capa de
-servicios encargada de la persistencia (`GestorNotas`) y la interfaz principal que
-solo coordina entradas y salidas del usuario.
+Aplicación de línea de comandos que permite crear, consultar, buscar, editar, eliminar, contar y exportar notas de texto almacenadas en disco. Cada nota se guarda como archivo `.txt` con la fecha de creación y puede exportarse a un archivo JSON para compartirla o respaldarla.
 
-## Objetivo
-
-- Practicar la asignación de responsabilidades: qué pertenece al modelo, qué al
-  servicio y qué a la capa que presenta resultados.
-- Documentar cada decisión relevante con docstrings, mensajes claros y pruebas
-  automatizadas que respalden el comportamiento esperado.
+## Características clave
+- Interfaz CLI sencilla con flujo guiado por menú interactivo.
+- Persistencia en disco usando archivos de texto por nota.
+- Búsqueda de palabras clave sobre todas las notas existentes.
+- Edición con respaldo automático para evitar pérdida de información.
+- Conteo de notas válidas y exportación a `JSON` para su posterior procesamiento.
 
 ## Requisitos
+- Python 3.10 o superior.
+- No se utilizan dependencias externas; `requirements.txt` se mantiene vacío para compatibilidad con herramientas estándar.
 
-- Python 3.10+ (sin dependencias externas).
+## Instalación rápida
+1. Clona este repositorio y entra en él.
+2. (Opcional) Crea y activa un entorno virtual.
+3. Ejecuta el programa:
+   ```bash
+   python main.py
+   ```
 
-## Ejecución
+## Uso del menú
+Dentro de la aplicación encontrarás las siguientes opciones numeradas:
+- `Crear nota`: solicita nombre y contenido; guarda la nota con la fecha actual.
+- `Leer nota`: muestra en pantalla el archivo correspondiente.
+- `Listar notas`: enumera los nombres disponibles (sin extensiones).
+- `Buscar palabra`: devuelve los nombres de notas que contienen la cadena indicada.
+- `Editar nota`: actualiza el contenido y crea un respaldo `_bak`.
+- `Eliminar nota`: borra definitivamente el archivo `.txt`.
+- `Contar notas`: informa cuántas notas válidas existen.
+- `Exportar a JSON`: genera `notas/exports/notas.json` con todas las notas.
+- `Salir`: cierra el programa.
 
-```bash
-python main.py
-```
-
-## Estructura
-
-```
+## Estructura del proyecto
+```text
 gestor_notas/
-├── main.py              # Interfaz CLI que orquesta la interacción con el usuario.
+├── AGENTS.md                 Documentación interna y pautas para colaborar.
+├── main.py                   CLI que orquesta la interacción con el usuario final.
 ├── models/
-│   └── nota.py          # Modelo de dominio: representa los datos de cada nota.
+│   └── nota.py               Modelo `Nota`: limpia entradas y fija la fecha de creación.
+├── notas/                    Carpeta de trabajo donde se guardan las notas `.txt`.
+│   └── exports/              Subcarpeta generada para almacenar exportaciones JSON.
+├── requirements.txt          Archivo reservado para dependencias (vacío actualmente).
 ├── services/
-│   └── gestor_notas.py  # Lógica de negocio y persistencia de notas en disco.
+│   └── gestor_notas.py       Servicio de persistencia y reglas de negocio (CRUD, búsqueda, exportación).
 ├── tests/
-│   └── test_gestor_notas.py  # Pruebas unitarias sobre la capa de servicios.
-└── README.md            # Documentación del objetivo y uso del proyecto.
+│   └── test_gestor_notas.py  Pruebas unitarias que validan el comportamiento del servicio.
+└── README.md                 Este documento.
 ```
 
-## Resumen de la Lógica
+### Cómo se relacionan los componentes
+- `models/nota.py`: define la estructura y representación de cada nota que será persistida.
+- `services/gestor_notas.py`: expone métodos de alto nivel (`guardar`, `leer`, `listar`, `buscar`, `editar`, `eliminar`, `contar`, `exportar_json`) que encapsulan la interacción con el sistema de archivos y los mensajes de error.
+- `main.py`: actúa como capa de interfaz; recibe entradas del usuario, invoca al servicio y muestra los resultados.
+- `notas/`: almacén físico del contenido generado por los usuarios. Puede versionarse o ignorarse según convenga (aparece en `.gitignore`).
+- `tests/test_gestor_notas.py`: utiliza directorios temporales para asegurar que las operaciones sobre archivos son robustas y no afectan datos reales.
 
-- El modelo `Nota` limpia los datos y conserva la fecha de creación al instanciarse.
-- El servicio `GestorNotas` centraliza la lectura/escritura de archivos, maneja
-  errores de E/S y decide cómo responder ante fallos (por ejemplo, creando
-  respaldos al editar o ignorando archivos auxiliares en las búsquedas).
-- La interfaz (`main.py`) solo valida entradas básicas, invoca al servicio y
-  muestra los mensajes devueltos, de modo que la lógica de negocio queda aislada.
-- Las pruebas unitarias comprueban cada operación del servicio en un directorio
-  temporal, documentando el comportamiento esperado y ofreciendo confianza para
-  futuros cambios.
+## Exportación de notas
+El comando de exportación crea (si no existe) la carpeta `notas/exports/` y genera el archivo `notas.json` con un arreglo de notas. Cada ítem incluye `nombre`, `fecha` y `contenido`, listos para importar en otras aplicaciones o compartir con terceros.
 
-## Pruebas
-
+## Pruebas automatizadas
+Ejecuta la batería incluida con:
 ```bash
 python -m unittest discover -s tests
 ```
 
-Las pruebas construyen directorios temporales para validar las operaciones de
-lectura/escritura sin afectar las notas reales.
+Las pruebas cubren flujos de éxito y escenarios de error (por ejemplo, fallos de escritura en disco) para garantizar la integridad de los datos.
+
+## Próximos pasos sugeridos
+- Añadir validaciones adicionales en la CLI (por ejemplo, evitar sobrescribir notas sin confirmación).
+- Expandir el formato de exportación con metadatos adicionales o compatibilidad con Markdown.
+- Empaquetar la aplicación como script instalable (`pipx`, `setuptools`) para una distribución más sencilla.

@@ -2,14 +2,14 @@
 
 ## Overview
 Este proyecto es un **Gestor de Notas en Python** que permite crear, leer, listar, buscar, editar, eliminar, contar y exportar notas.  
-Cada nota se guarda como archivo `.txt` y se puede exportar a JSON.
+Cada nota se guarda como archivo `.txt` y se puede exportar a JSON, tambien a pickle.
 
 ## Codebase layout
 - `models/nota.py` → Clase `Nota` (modelo de datos).
 - `services/gestor_notas.py` → Clase `GestorNotas` (CRUD, contar, exportar).
 - `main.py` → CLI con menú de usuario.
 - `notas/` → Carpeta de almacenamiento de notas `.txt`.
-- `notas/exports/` → Carpeta para exportaciones JSON.
+- `notas/exports/` → Carpeta para exportaciones JSON y binarios.
 - `.gitignore` → Ignora `__pycache__`, entornos virtuales, `notas/` y `exports/`.
 
 ## Core concepts
@@ -20,7 +20,7 @@ Cada nota se guarda como archivo `.txt` y se puede exportar a JSON.
 ## Capabilities
 - Crear, leer, listar, buscar, editar y eliminar notas.
 - Contar número total de notas válidas.
-- Exportar todas las notas a JSON.
+- Exportar todas las notas a JSON y pickles.
 
 ## Extension guidelines
 - **Persistencia** → modificar/añadir en `GestorNotas`.
@@ -28,13 +28,6 @@ Cada nota se guarda como archivo `.txt` y se puede exportar a JSON.
 - **Modelo de datos** → solo `Nota`, no incluir lógica de archivos.
 - Mantener codificación **UTF-8**.
 - Respetar PEP8 y docstrings.
-
-## Commit conventions
-- `feat:` → nueva funcionalidad (`feat: exportar notas a JSON`).
-- `fix:` → correcciones.
-- `refactor:` → mejoras internas sin añadir funciones.
-- `docs:` → cambios en README/AGENTS/docstrings.
-- `test:` → pruebas.
 
 ## Examples
 Ejemplo de salida JSON:

@@ -3,6 +3,7 @@ import shutil
 import json
 from datetime import datetime
 from models.nota import Nota
+from services.pickle_repository import PickleRepository
 
 class GestorNotas:
     """Gestiona la creación, consulta y administración de notas en disco."""
@@ -12,6 +13,9 @@ class GestorNotas:
         self.carpeta = carpeta
         if not os.path.exists(carpeta):
             os.makedirs(carpeta)
+        self.pickle_repository = PickleRepository(
+            os.path.join(self.carpeta, "exports", "notas.pkl")
+        )
 
     def guardar(self, nota: Nota):
         """Escribe una nota nueva o reemplaza la existente con el mismo nombre."""
@@ -151,3 +155,39 @@ class GestorNotas:
             json.dump(notas, json_file, indent=4, ensure_ascii=False)
 
         return True
+
+    def exportar_pickle(self, carpeta_export="exports", archivo_salida="notas.pkl"):
+        """Serializa todas las notas en un diccionario y lo persiste con pickle."""
+        ruta_pickle = os.path.join(self.carpeta, carpeta_export, archivo_salida)
+        repositorio = (
+            self.pickle_repository
+            if ruta_pickle == self.pickle_repository.ruta_archivo
+            else PickleRepository(ruta_pickle)
+        )
+
+        notas = {}
+        for archivo in os.listdir(self.carpeta):
+            if archivo.endswith(".txt") and not archivo.endswith("_bak.txt"):
+                ruta = os.path.join(self.carpeta, archivo)
+                try:
+                    with open(ruta, "r", encoding="utf-8") as f:
+                        contenido = f.read()
+                except OSError:
+                    continue
+                nombre = archivo[:-4]
+                lineas = contenido.splitlines()
+                fecha = lineas[0].replace("Fecha: ", "").strip() if lineas else ""
+                cuerpo = "\n".join(lineas[2:]) if len(lineas) > 2 else ""
+                notas[nombre] = {"fecha": fecha, "contenido": cuerpo}
+
+        return repositorio.guardar(notas)
+
+    def cargar_desde_pickle(self, carpeta_export="exports", archivo_salida="notas.pkl"):
+        """Recupera el diccionario de notas serializadas desde el archivo binario."""
+        ruta_pickle = os.path.join(self.carpeta, carpeta_export, archivo_salida)
+        repositorio = (
+            self.pickle_repository
+            if ruta_pickle == self.pickle_repository.ruta_archivo
+            else PickleRepository(ruta_pickle)
+        )
+        return repositorio.cargar()

@@ -1,6 +1,6 @@
 # Gestor de Notas en Python
 
-Aplicación de línea de comandos que permite crear, consultar, buscar, editar, eliminar, contar y exportar notas de texto almacenadas en disco. Cada nota se guarda como archivo `.txt` con la fecha de creación y puede exportarse a un archivo JSON para compartirla o respaldarla.
+Aplicación de línea de comandos que permite crear, consultar, buscar, editar, eliminar, contar y exportar notas de texto almacenadas en disco. Cada nota se guarda como archivo `.txt` con la fecha de creación y puede exportarse a un archivo JSON o a un binario `pickle` para respaldos completos.
 
 ## Características clave
 - Interfaz CLI sencilla con flujo guiado por menú interactivo.
@@ -8,6 +8,7 @@ Aplicación de línea de comandos que permite crear, consultar, buscar, editar, 
 - Búsqueda de palabras clave sobre todas las notas existentes.
 - Edición con respaldo automático para evitar pérdida de información.
 - Conteo de notas válidas y exportación a `JSON` para su posterior procesamiento.
+- Exportación/recuperación en formato binario (`pickle`) mediante un repositorio dedicado (`PickleRepository`).
 
 ## Requisitos
 - Python 3.10 o superior.
@@ -31,6 +32,8 @@ Dentro de la aplicación encontrarás las siguientes opciones numeradas:
 - `Eliminar nota`: borra definitivamente el archivo `.txt`.
 - `Contar notas`: informa cuántas notas válidas existen.
 - `Exportar a JSON`: genera `notas/exports/notas.json` con todas las notas.
+- `Exportar a Pickle`: crea/actualiza `notas/exports/notas.pkl` con un diccionario serializado.
+- `Restaurar desde Pickle`: rehidrata las notas del archivo `notas.pkl` al almacenamiento en texto (preserva la fecha original si está disponible).
 - `Salir`: cierra el programa.
 
 ## Estructura del proyecto
@@ -44,7 +47,8 @@ gestor_notas/
 │   └── exports/              Subcarpeta generada para almacenar exportaciones JSON.
 ├── requirements.txt          Archivo reservado para dependencias (vacío actualmente).
 ├── services/
-│   └── gestor_notas.py       Servicio de persistencia y reglas de negocio (CRUD, búsqueda, exportación).
+│   ├── gestor_notas.py       Servicio de persistencia y reglas de negocio (CRUD, búsqueda, exportaciones).
+│   └── pickle_repository.py  Repositorio especializado para leer/escribir el archivo binario `notas.pkl`.
 ├── tests/
 │   └── test_gestor_notas.py  Pruebas unitarias que validan el comportamiento del servicio.
 └── README.md                 Este documento.
@@ -58,13 +62,14 @@ gestor_notas/
 - `tests/test_gestor_notas.py`: utiliza directorios temporales para asegurar que las operaciones sobre archivos son robustas y no afectan datos reales.
 
 ## Exportación de notas
-El comando de exportación crea (si no existe) la carpeta `notas/exports/` y genera el archivo `notas.json` con un arreglo de notas. Cada ítem incluye `nombre`, `fecha` y `contenido`, listos para importar en otras aplicaciones o compartir con terceros.
+Los comandos de exportación crean (si no existe) la carpeta `notas/exports/`:
+- `notas.json`: arreglo de notas con `nombre`, `fecha` y `contenido`, legible por humanos y otras aplicaciones.
+- `notas.pkl`: diccionario serializado usando `pickle` con todas las notas. Ventajas: snapshot completo con estructuras nativas de Python y escritura/lectura rápida; limitaciones: formato no legible, depende de la versión de Python y solo debe cargarse desde fuentes confiables.
 
 ## Pruebas automatizadas
 Ejecuta la batería incluida con:
 ```bash
-python -m unittest discover -s tests
+python -m unittest tests.test_gestor_notas
 ```
 
 Las pruebas cubren flujos de éxito y escenarios de error (por ejemplo, fallos de escritura en disco) para garantizar la integridad de los datos.
-

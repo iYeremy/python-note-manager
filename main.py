@@ -14,7 +14,29 @@ def mostrar_menu():
     print("6. Eliminar nota")
     print("7. Contar notas")
     print("8. Exportar notas a JSON")
-    print("9. Salir")
+    print("9. Exportar notas a Pickle")
+    print("10. Restaurar notas desde Pickle")
+    print("11. Salir")
+
+def restaurar_desde_pickle():
+    """Restaura las notas que existan en el archivo pickle al almacenamiento en disco."""
+    datos = gestor.cargar_desde_pickle()
+    if not datos:
+        print("No se encontraron datos en notas.pkl.")
+        return
+
+    restauradas = 0
+    for nombre, campos in datos.items():
+        contenido = campos.get("contenido", "")
+        fecha = campos.get("fecha")
+        nota = Nota(nombre, contenido)
+        if fecha:
+            nota.fecha = fecha
+        exito, _ = gestor.guardar(nota)
+        if exito:
+            restauradas += 1
+
+    print(f"Se restauraron {restauradas} notas desde notas.pkl.")
 
 while True:
     mostrar_menu()
@@ -64,12 +86,22 @@ while True:
     elif opcion == "7":
         total = gestor.contar()
         print(f"Número total de notas: {total}")
-    
+
     elif opcion == "8":
         gestor.exportar_json()
         print("Notas exportadas a notas.json correctamente.")
 
     elif opcion == "9":
+        exito = gestor.exportar_pickle()
+        if exito:
+            print("Notas exportadas a notas.pkl correctamente.")
+        else:
+            print("No fue posible exportar las notas a pickle.")
+
+    elif opcion == "10":
+        restaurar_desde_pickle()
+
+    elif opcion == "11":
         print("Programa finalizado.")
         break
 

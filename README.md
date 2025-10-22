@@ -68,7 +68,3 @@ python -m unittest discover -s tests
 
 Las pruebas cubren flujos de éxito y escenarios de error (por ejemplo, fallos de escritura en disco) para garantizar la integridad de los datos.
 
-## Próximos pasos sugeridos
-- Añadir validaciones adicionales en la CLI (por ejemplo, evitar sobrescribir notas sin confirmación).
-- Expandir el formato de exportación con metadatos adicionales o compatibilidad con Markdown.
-- Empaquetar la aplicación como script instalable (`pipx`, `setuptools`) para una distribución más sencilla.

@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from models.nota import Nota
 from services.gestor_notas import GestorNotas
+from services.pickle_repository import PickleRepository
 
 # solo testas el servicio de gestor de notas
 class GestorNotasTestCase(unittest.TestCase):
@@ -117,6 +118,32 @@ class GestorNotasTestCase(unittest.TestCase):
         self.assertEqual(data[0]["nombre"], "nota")
         self.assertEqual(data[0]["contenido"], "contenido editado")
         self.assertTrue(data[0]["fecha"])
+
+    def test_exportar_pickle_crea_archivo_con_notas(self):
+        self.gestor.guardar(Nota("pickle", "contenido binario"))
+
+        exito = self.gestor.exportar_pickle()
+        self.assertTrue(exito)
+
+        ruta_pickle = os.path.join(self.temp_dir.name, "exports", "notas.pkl")
+        self.assertTrue(os.path.exists(ruta_pickle))
+
+        repositorio = PickleRepository(ruta_pickle)
+        datos = repositorio.cargar()
+
+        self.assertEqual(len(datos), 1)
+        self.assertIn("pickle", datos)
+        self.assertEqual(datos["pickle"]["contenido"], "contenido binario")
+        self.assertIsInstance(datos["pickle"]["fecha"], str)
+
+    def test_cargar_desde_pickle_recupera_diccionario(self):
+        self.gestor.guardar(Nota("persistente", "contenido estable"))
+        self.gestor.exportar_pickle()
+
+        datos = self.gestor.cargar_desde_pickle()
+
+        self.assertIn("persistente", datos)
+        self.assertEqual(datos["persistente"]["contenido"], "contenido estable")
 
     def test_editar_restaura_contenido_si_falla_escritura(self):
         self.gestor.guardar(Nota("fallar", "texto original"))
